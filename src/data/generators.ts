@@ -132,6 +132,21 @@ export const fractionPick = (parts: 2 | 4, shaded: number): Problem => {
   }
 }
 
+export const buildUnique = <T extends Problem>(count: number, factory: () => T): T[] => {
+  const result: T[] = []
+  const seen = new Set<string>()
+  let attempts = 0
+  while (result.length < count && attempts < count * 20) {
+    attempts++
+    const p = factory()
+    if (!seen.has(p.prompt)) {
+      seen.add(p.prompt)
+      result.push(p)
+    }
+  }
+  return result
+}
+
 export const wordProblem = (story: string, emoji: string, correct: number): Problem => ({
   kind: 'math-mc',
   id: nextId('wp'),

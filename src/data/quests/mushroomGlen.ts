@@ -1,5 +1,5 @@
 import type { Quest } from '../../types/problem'
-import { subMC, numberLine, rand } from '../generators'
+import { subMC, numberLine, rand, buildUnique } from '../generators'
 
 const subPair = (maxA: number): [number, number] => {
   const a = rand(2, maxA)
@@ -11,9 +11,9 @@ export const buildMushroomGlenQuests = (): Quest[] => [
   {
     id: 'mushroom-q1',
     index: 1,
-    title: 'Hedgehog\'s Picnic',
+    title: "Hedgehog's Picnic",
     story: 'The Hedgehog had a picnic. Some food got eaten! How much is left?',
-    problems: Array.from({ length: 5 }, () => {
+    problems: buildUnique(5, () => {
       const [a, b] = subPair(5)
       return subMC(a, b, '🍎')
     }),
@@ -23,7 +23,7 @@ export const buildMushroomGlenQuests = (): Quest[] => [
     index: 2,
     title: 'Hop Back',
     story: 'Use the number line. This time, hop backwards.',
-    problems: Array.from({ length: 5 }, () => {
+    problems: buildUnique(5, () => {
       const start = rand(3, 10)
       const jump = rand(1, start)
       return numberLine(start, jump, '-', 10)
@@ -34,7 +34,7 @@ export const buildMushroomGlenQuests = (): Quest[] => [
     index: 3,
     title: 'Take Away',
     story: 'Some mushrooms have been picked. How many are still standing?',
-    problems: Array.from({ length: 5 }, () => {
+    problems: buildUnique(5, () => {
       const [a, b] = subPair(10)
       return subMC(a, b, '🍄')
     }),
@@ -44,20 +44,23 @@ export const buildMushroomGlenQuests = (): Quest[] => [
     index: 4,
     title: 'Empty Baskets',
     story: 'When everything is gone, what is left?',
-    problems: Array.from({ length: 5 }, () => {
-      const a = rand(2, 10)
-      return subMC(a, a, '🌰')
-    }).concat(Array.from({ length: 2 }, () => {
-      const [a, b] = subPair(10)
-      return subMC(a, b, '🌰')
-    })),
+    problems: [
+      ...buildUnique(5, () => {
+        const a = rand(2, 10)
+        return subMC(a, a, '🌰')
+      }),
+      ...buildUnique(2, () => {
+        const [a, b] = subPair(10)
+        return subMC(a, b, '🌰')
+      }),
+    ],
   },
   {
     id: 'mushroom-q5',
     index: 5,
-    title: 'Hedgehog\'s Test',
+    title: "Hedgehog's Test",
     story: 'Mixed subtraction! Show what you have learned.',
-    problems: Array.from({ length: 7 }, () => {
+    problems: buildUnique(7, () => {
       const [a, b] = subPair(10)
       return subMC(a, b, '🍄')
     }),
