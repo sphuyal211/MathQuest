@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    @apply font-body text-meadow-900 antialiased;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+  button {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
