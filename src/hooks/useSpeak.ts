@@ -1,32 +1,26 @@
-let cachedVoice: SpeechSynthesisVoice | null | undefined = undefined
-
-const resolveVoice = (): SpeechSynthesisVoice | null => {
-  if (!('speechSynthesis' in window)) return null
+const pickVoice = (): SpeechSynthesisVoice | null => {
   const voices = speechSynthesis.getVoices()
+  if (!voices.length) return null
   return (
-    voices.find((v) => v.name === 'Samantha') ||
-    voices.find((v) => v.name === 'Google US English') ||
-    voices.find((v) => v.lang === 'en-US' && v.localService) ||
+    voices.find((v) => v.name === 'Google US English') ||      // Chrome desktop — neural quality
+    voices.find((v) => v.name === 'Samantha') ||               // macOS / iOS — Apple quality
+    voices.find((v) => v.name.includes('Google') && v.lang === 'en-US') ||
+    voices.find((v) => v.lang === 'en-US' && !v.localService) || // prefer cloud/neural over built-in
+    voices.find((v) => v.lang === 'en-US') ||
     voices.find((v) => v.lang.startsWith('en')) ||
     null
   )
-}
-
-if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-  speechSynthesis.addEventListener('voiceschanged', () => {
-    cachedVoice = undefined
-  })
 }
 
 export const speak = (text: string) => {
   if (!('speechSynthesis' in window)) return
   speechSynthesis.cancel()
   const utt = new SpeechSynthesisUtterance(text)
-  utt.rate = 0.88
-  utt.pitch = 1.1
+  utt.rate = 1.0
+  utt.pitch = 1.0
   utt.lang = 'en-US'
-  if (cachedVoice === undefined) cachedVoice = resolveVoice()
-  if (cachedVoice) utt.voice = cachedVoice
+  const voice = pickVoice()
+  if (voice) utt.voice = voice
   speechSynthesis.speak(utt)
 }
 

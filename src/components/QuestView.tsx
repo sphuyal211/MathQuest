@@ -22,7 +22,11 @@ export function QuestView() {
   const [companionKey, setCompanionKey] = useState(0)
   const moodTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => () => cancelSpeech(), [])
+  const speakTextRef = useRef('')
+
+  useEffect(() => () => { cancelSpeech() }, [])
+  // Speak problem prompt each time a new problem loads (after first speak unblocks iOS)
+  useEffect(() => { if (!showStory) speak(speakTextRef.current) }, [problemIdx, showStory])
 
   if (scene.name !== 'quest') return null
 
@@ -40,20 +44,23 @@ export function QuestView() {
     if (moodTimer.current) clearTimeout(moodTimer.current)
     setCompanionMood(mood)
     setCompanionKey((k) => k + 1)
-    moodTimer.current = setTimeout(() => setCompanionMood('idle'), mood === 'cheer' ? 900 : 700)
+    moodTimer.current = setTimeout(() => setCompanionMood('idle'), mood === 'cheer' ? 800 : 600)
   }
 
   const onCorrect = () => {
     triggerMood('cheer')
     if (isLast) {
       const chapterComplete = completeQuest(quest.id, scene.chapter)
-      setTimeout(() => goTo({ name: 'reward', chapter: scene.chapter, questId: quest.id, chapterComplete }), 900)
+      goTo({ name: 'reward', chapter: scene.chapter, questId: quest.id, chapterComplete })
     } else {
-      setTimeout(() => setProblemIdx(problemIdx + 1), 900)
+      setProblemIdx(problemIdx + 1)
     }
   }
 
   const onWrong = () => triggerMood('sad')
+
+  // Keep ref current so the speak effect always reads the right text
+  speakTextRef.current = showStory ? quest.story : (problem?.prompt ?? '')
 
   return (
     <div className={`min-h-full w-full bg-gradient-to-b ${chapter.bgClass} flex flex-col no-select relative overflow-hidden`}>
@@ -99,7 +106,6 @@ export function QuestView() {
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
-              onAnimationComplete={() => speak(problem.prompt)}
               className="w-full"
             >
               <ActivityDispatcher problem={problem} heroName={heroName} onCorrect={onCorrect} onWrong={onWrong} />
