@@ -4,7 +4,7 @@ import { useGame } from '../store/game'
 import { sounds } from '../hooks/useSound'
 
 export function GiftScreen() {
-  const { heroName, correctAnswers, wrongAnswers, giftGoal, markGiftSeen, goTo } = useGame()
+  const { heroName, correctAnswers, wrongAnswers, markGiftSeen, goTo } = useGame()
 
   useEffect(() => {
     sounds.complete()
