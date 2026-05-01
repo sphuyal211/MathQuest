@@ -8,9 +8,10 @@ type Props = {
   problem: MathMCProblem
   heroName: string
   onCorrect: () => void
+  onWrong?: () => void
 }
 
-export function MathMC({ problem, heroName, onCorrect }: Props) {
+export function MathMC({ problem, heroName, onCorrect, onWrong }: Props) {
   const [state, setState] = useState<'idle' | 'right' | 'wrong'>('idle')
   const [picked, setPicked] = useState<number | null>(null)
 
@@ -24,6 +25,7 @@ export function MathMC({ problem, heroName, onCorrect }: Props) {
     } else {
       sounds.wrong()
       setState('wrong')
+      onWrong?.()
       setTimeout(() => {
         setState('idle')
         setPicked(null)

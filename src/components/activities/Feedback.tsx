@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { speak } from '../../hooks/useSpeak'
 
 type Props = {
   state: 'idle' | 'right' | 'wrong'
@@ -7,6 +9,10 @@ type Props = {
 }
 
 export function Feedback({ state, heroName, hint }: Props) {
+  useEffect(() => {
+    if (state === 'wrong') speak(`Let's try again! ${hint ?? 'Look closely!'}`)
+  }, [state, hint])
+
   return (
     <AnimatePresence>
       {state === 'right' && (

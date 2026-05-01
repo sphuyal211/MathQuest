@@ -9,9 +9,10 @@ type Props = {
   problem: TapCountProblem
   heroName: string
   onCorrect: () => void
+  onWrong?: () => void
 }
 
-export function TapToCount({ problem, heroName, onCorrect }: Props) {
+export function TapToCount({ problem, heroName, onCorrect, onWrong }: Props) {
   const [tapped, setTapped] = useState<Set<number>>(new Set())
   const [state, setState] = useState<'idle' | 'right' | 'wrong'>('idle')
   const [picked, setPicked] = useState<number | null>(null)
@@ -36,6 +37,7 @@ export function TapToCount({ problem, heroName, onCorrect }: Props) {
     } else {
       sounds.wrong()
       setState('wrong')
+      onWrong?.()
       setTimeout(() => {
         setState('idle')
         setPicked(null)
