@@ -1,9 +1,16 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useGame } from '../store/game'
 import { CHAPTERS } from '../data/curriculum'
+import { sounds } from '../hooks/useSound'
 
 export function RewardScreen() {
   const { scene, heroName, goTo } = useGame()
+
+  useEffect(() => {
+    sounds.complete()
+  }, [])
+
   if (scene.name !== 'reward') return null
   const chapter = CHAPTERS.find((c) => c.id === scene.chapter)
   if (!chapter) {
@@ -11,9 +18,11 @@ export function RewardScreen() {
     return null
   }
 
+  const allDone = chapter.id === 'fairy-glen' && scene.chapterComplete
+
   return (
     <div className="min-h-full w-full bg-gradient-to-b from-sun-200 via-meadow-200 to-meadow-400 flex items-center justify-center p-6 relative overflow-hidden no-select">
-      {Array.from({ length: 14 }).map((_, i) => (
+      {Array.from({ length: 18 }).map((_, i) => (
         <motion.span
           key={i}
           className="absolute text-3xl pointer-events-none"
@@ -43,13 +52,37 @@ export function RewardScreen() {
           transition={{ duration: 1.4, repeat: Infinity }}
           className="text-8xl mb-4"
         >
-          {chapter.companionEmoji}
+          {allDone ? '👑' : chapter.companionEmoji}
         </motion.div>
-        <p className="text-sm uppercase tracking-wider text-magic-500 font-bold mb-2">Companion unlocked!</p>
-        <h2 className="text-3xl font-display font-bold text-meadow-900 mb-2">The {chapter.companion} is awake!</h2>
-        <p className="text-lg text-meadow-700 font-display mb-6">
-          Wonderful counting, {heroName}. {chapter.title} is glowing again.
-        </p>
+        {allDone ? (
+          <>
+            <p className="text-sm uppercase tracking-wider text-magic-500 font-bold mb-2">You did it!</p>
+            <h2 className="text-3xl font-display font-bold text-meadow-900 mb-2">
+              {heroName}, you are the Math Mage!
+            </h2>
+            <p className="text-lg text-meadow-700 font-display mb-6">
+              The whole forest is glowing again because of you.
+            </p>
+          </>
+        ) : scene.chapterComplete ? (
+          <>
+            <p className="text-sm uppercase tracking-wider text-magic-500 font-bold mb-2">Chapter complete!</p>
+            <h2 className="text-3xl font-display font-bold text-meadow-900 mb-2">{chapter.title} is bright!</h2>
+            <p className="text-lg text-meadow-700 font-display mb-6">
+              You finished every quest, {heroName}. The next region just unlocked!
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-sm uppercase tracking-wider text-magic-500 font-bold mb-2">Quest complete!</p>
+            <h2 className="text-3xl font-display font-bold text-meadow-900 mb-2">
+              The {chapter.companion} cheers for you!
+            </h2>
+            <p className="text-lg text-meadow-700 font-display mb-6">
+              Wonderful work, {heroName}. Keep going!
+            </p>
+          </>
+        )}
         <div className="bg-sun-100 rounded-2xl py-3 px-4 mb-6 inline-flex items-center gap-2">
           <span className="text-3xl">⭐</span>
           <span className="font-display font-bold text-sun-500 text-xl">+1 sticker</span>

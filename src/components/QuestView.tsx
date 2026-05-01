@@ -1,36 +1,44 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGame } from '../store/game'
-import { SUNNY_MEADOW_QUESTS } from '../data/sunnyMeadowQuests'
-import { TapToCount } from './TapToCount'
+import { buildQuests } from '../data/quests'
+import { CHAPTERS } from '../data/curriculum'
+import { ActivityDispatcher } from './activities/ActivityDispatcher'
 
 export function QuestView() {
   const { scene, heroName, completeQuest, goTo } = useGame()
+
+  const quests = useMemo(() => {
+    if (scene.name !== 'quest') return []
+    return buildQuests(scene.chapter, heroName)
+  }, [scene, heroName])
+
   const [problemIdx, setProblemIdx] = useState(0)
   const [showStory, setShowStory] = useState(true)
 
   if (scene.name !== 'quest') return null
 
-  const quest = SUNNY_MEADOW_QUESTS.find((q) => q.id === scene.questId)
+  const quest = quests.find((q) => q.id === scene.questId)
   if (!quest) {
     goTo({ name: 'map' })
     return null
   }
 
+  const chapter = CHAPTERS.find((c) => c.id === scene.chapter)!
   const problem = quest.problems[problemIdx]
   const isLast = problemIdx === quest.problems.length - 1
 
   const onCorrect = () => {
     if (isLast) {
-      completeQuest(quest.id, scene.chapter)
-      goTo({ name: 'reward', chapter: scene.chapter, questId: quest.id })
+      const chapterComplete = completeQuest(quest.id, scene.chapter)
+      goTo({ name: 'reward', chapter: scene.chapter, questId: quest.id, chapterComplete })
     } else {
       setProblemIdx(problemIdx + 1)
     }
   }
 
   return (
-    <div className="min-h-full w-full bg-gradient-to-b from-meadow-100 to-meadow-300 flex flex-col no-select">
+    <div className={`min-h-full w-full bg-gradient-to-b ${chapter.bgClass} flex flex-col no-select`}>
       <header className="px-6 py-4 flex items-center justify-between">
         <button
           onClick={() => goTo({ name: 'map' })}
@@ -56,7 +64,7 @@ export function QuestView() {
               onClick={() => setShowStory(false)}
               className="bg-white/95 rounded-chunky p-8 shadow-soft max-w-xl text-center cursor-pointer"
             >
-              <div className="text-6xl mb-3">🐰💤</div>
+              <div className="text-6xl mb-3">{chapter.companionEmoji}</div>
               <p className="text-sm uppercase tracking-wider text-magic-500 font-bold mb-2">{quest.title}</p>
               <p className="text-2xl font-display text-meadow-900 leading-snug">{quest.story}</p>
               <p className="mt-6 text-meadow-600 text-sm">Tap to start →</p>
@@ -69,7 +77,7 @@ export function QuestView() {
               exit={{ opacity: 0, x: -24 }}
               className="w-full"
             >
-              <TapToCount problem={problem} heroName={heroName} onCorrect={onCorrect} />
+              <ActivityDispatcher problem={problem} heroName={heroName} onCorrect={onCorrect} />
             </motion.div>
           )}
         </AnimatePresence>

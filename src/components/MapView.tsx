@@ -1,25 +1,20 @@
 import { motion } from 'framer-motion'
-import { CHAPTERS, type Chapter } from '../data/curriculum'
+import { CHAPTERS } from '../data/curriculum'
 import { useGame } from '../store/game'
-import { SUNNY_MEADOW_QUESTS } from '../data/sunnyMeadowQuests'
+import { sounds } from '../hooks/useSound'
 
 export function MapView() {
-  const { heroName, completedQuests, stickers, goTo } = useGame()
+  const { heroName, stickers, goTo, isChapterUnlocked, isChapterComplete, nextQuestFor } = useGame()
 
-  const isUnlocked = (c: Chapter) => c.available
-  const isCompleted = (c: Chapter) => {
-    if (c.id === 'sunny-meadow') {
-      return SUNNY_MEADOW_QUESTS.every((q) => completedQuests.includes(q.id))
+  const onTapChapter = (id: typeof CHAPTERS[number]['id']) => {
+    if (!isChapterUnlocked(id)) {
+      sounds.wrong()
+      return
     }
-    return false
-  }
-
-  const onTapChapter = (c: Chapter) => {
-    if (!isUnlocked(c)) return
-    if (c.id === 'sunny-meadow') {
-      const next = SUNNY_MEADOW_QUESTS.find((q) => !completedQuests.includes(q.id))
-      if (next) goTo({ name: 'quest', chapter: c.id, questId: next.id })
-    }
+    sounds.whoosh()
+    const next = nextQuestFor(id)
+    if (next) goTo({ name: 'quest', chapter: id, questId: next })
+    else goTo({ name: 'map' })
   }
 
   return (
@@ -29,9 +24,21 @@ export function MapView() {
           <p className="text-sm text-meadow-700">Math Mage</p>
           <p className="text-xl font-display font-bold text-meadow-900">{heroName}</p>
         </div>
-        <div className="bg-white/80 backdrop-blur rounded-chunky px-4 py-2 shadow-soft flex items-center gap-2">
-          <span className="text-2xl">⭐</span>
-          <span className="text-2xl font-display font-bold text-sun-500">{stickers}</span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => goTo({ name: 'stickers' })}
+            className="bg-white/80 backdrop-blur rounded-chunky px-4 py-2 shadow-soft flex items-center gap-2 active:scale-95"
+          >
+            <span className="text-2xl">⭐</span>
+            <span className="text-2xl font-display font-bold text-sun-500">{stickers}</span>
+          </button>
+          <button
+            onClick={() => goTo({ name: 'settings' })}
+            className="bg-white/80 backdrop-blur rounded-chunky w-12 h-12 shadow-soft flex items-center justify-center text-2xl active:scale-95"
+            aria-label="Settings"
+          >
+            ⚙️
+          </button>
         </div>
       </header>
 
@@ -57,12 +64,12 @@ export function MapView() {
 
       <div className="absolute inset-0">
         {CHAPTERS.map((c) => {
-          const unlocked = isUnlocked(c)
-          const completed = isCompleted(c)
+          const unlocked = isChapterUnlocked(c.id)
+          const completed = isChapterComplete(c.id)
           return (
             <motion.button
               key={c.id}
-              onClick={() => onTapChapter(c)}
+              onClick={() => onTapChapter(c.id)}
               disabled={!unlocked}
               whileTap={unlocked ? { scale: 0.92 } : undefined}
               animate={unlocked && !completed ? { y: [0, -6, 0] } : undefined}
