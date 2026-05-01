@@ -66,7 +66,7 @@ export function NumberLine({ problem, heroName, onCorrect }: Props) {
             {Array.from({ length: segments }).map((_, i) => (
               <div key={i} className="flex flex-col items-center" style={{ width: `${100 / segments}%` }}>
                 <div className="w-1 h-3 bg-meadow-700 rounded" />
-                <span className="text-xs sm:text-sm font-display font-bold text-meadow-800 mt-1">{i}</span>
+                <span className="text-sm sm:text-base font-display font-bold text-meadow-800 mt-1">{i}</span>
               </div>
             ))}
           </div>

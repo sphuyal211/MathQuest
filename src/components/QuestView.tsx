@@ -42,7 +42,7 @@ export function QuestView() {
       <header className="px-6 py-4 flex items-center justify-between">
         <button
           onClick={() => goTo({ name: 'map' })}
-          className="bg-white/80 rounded-chunky px-4 py-2 font-display font-semibold text-meadow-800 shadow-soft active:scale-95"
+          className="bg-white/80 rounded-chunky px-5 py-3 font-display font-semibold text-meadow-800 shadow-soft active:scale-95 min-h-[48px] flex items-center"
         >
           ← Map
         </button>
