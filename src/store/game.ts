@@ -52,7 +52,8 @@ export const useGame = create<GameState>()(
         const idx = chapterIndex(chapter)
         if (idx <= 0) return true
         const prev = CHAPTERS[idx - 1].id
-        return get().isChapterComplete(prev)
+        const prevFirstQuest = questIdsForChapter(prev)[0]
+        return get().completedQuests.includes(prevFirstQuest)
       },
 
       isChapterComplete: (chapter) => {
