@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion'
 import { CHAPTERS } from '../data/curriculum'
+import { questIdsForChapter } from '../data/quests'
 import { useGame } from '../store/game'
 import { sounds } from '../hooks/useSound'
 
 export function MapView() {
-  const { heroName, stickers, goTo, isChapterUnlocked, isChapterComplete, nextQuestFor } = useGame()
+  const { heroName, stickers, completedQuests, goTo, isChapterUnlocked, isChapterComplete, nextQuestFor } = useGame()
 
   const onTapChapter = (id: typeof CHAPTERS[number]['id']) => {
     if (!isChapterUnlocked(id)) {
@@ -92,6 +93,22 @@ export function MapView() {
                   </span>
                 )}
               </div>
+              {(() => {
+                if (!unlocked || completed) return null
+                const ids = questIdsForChapter(c.id)
+                const doneCount = ids.filter((id) => completedQuests.includes(id)).length
+                if (doneCount === 0) return null
+                return (
+                  <div className="mt-1 flex gap-1 justify-center">
+                    {ids.map((id, i) => (
+                      <span
+                        key={id}
+                        className={`w-2 h-2 rounded-full ${i < doneCount ? 'bg-sun-400' : 'bg-white/50'}`}
+                      />
+                    ))}
+                  </div>
+                )
+              })()}
               <div className="mt-2 text-center">
                 <p className={`font-display font-bold text-sm ${unlocked ? 'text-meadow-900' : 'text-meadow-600/60'}`}>
                   {c.title}

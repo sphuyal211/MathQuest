@@ -16,7 +16,7 @@ export const speak = (text: string) => {
   if (!('speechSynthesis' in window)) return
   speechSynthesis.cancel()
   const utt = new SpeechSynthesisUtterance(text)
-  utt.rate = 1.0
+  utt.rate = 0.85
   utt.pitch = 1.0
   utt.lang = 'en-US'
   const voice = pickVoice()
