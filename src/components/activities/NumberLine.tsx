@@ -9,9 +9,10 @@ type Props = {
   problem: NumberLineProblem
   heroName: string
   onCorrect: () => void
+  onWrong?: () => void
 }
 
-export function NumberLine({ problem, heroName, onCorrect }: Props) {
+export function NumberLine({ problem, heroName, onCorrect, onWrong }: Props) {
   const [state, setState] = useState<'idle' | 'right' | 'wrong'>('idle')
   const [picked, setPicked] = useState<number | null>(null)
   const [hopIdx, setHopIdx] = useState(0)
@@ -41,6 +42,7 @@ export function NumberLine({ problem, heroName, onCorrect }: Props) {
     } else {
       sounds.wrong()
       setState('wrong')
+      onWrong?.()
       setTimeout(() => {
         setState('idle')
         setPicked(null)

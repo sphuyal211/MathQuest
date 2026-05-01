@@ -2,10 +2,11 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useGame } from '../store/game'
 import { CHAPTERS } from '../data/curriculum'
+import { questIdsForChapter } from '../data/quests'
 import { sounds } from '../hooks/useSound'
 
 export function RewardScreen() {
-  const { scene, heroName, goTo } = useGame()
+  const { scene, heroName, goTo, nextQuestFor } = useGame()
 
   useEffect(() => {
     sounds.complete()
@@ -19,6 +20,13 @@ export function RewardScreen() {
   }
 
   const allDone = chapter.id === 'fairy-glen' && scene.chapterComplete
+  const nextQuestId = scene.chapterComplete ? null : nextQuestFor(scene.chapter)
+
+  // Quest progress: which number quest was this?
+  const questIds = questIdsForChapter(scene.chapter)
+  const completedIdx = questIds.indexOf(scene.questId)
+  const questNum = completedIdx + 1
+  const questTotal = questIds.length
 
   return (
     <div className="min-h-full w-full bg-gradient-to-b from-sun-200 via-meadow-200 to-meadow-400 flex items-center justify-center p-6 relative overflow-hidden no-select">
@@ -74,12 +82,14 @@ export function RewardScreen() {
           </>
         ) : (
           <>
-            <p className="text-sm uppercase tracking-wider text-magic-500 font-bold mb-2">Quest complete!</p>
+            <p className="text-sm uppercase tracking-wider text-magic-500 font-bold mb-2">
+              Quest {questNum} of {questTotal} done!
+            </p>
             <h2 className="text-3xl font-display font-bold text-meadow-900 mb-2">
               The {chapter.companion} cheers for you!
             </h2>
             <p className="text-lg text-meadow-700 font-display mb-6">
-              Wonderful work, {heroName}. Keep going!
+              Wonderful work, {heroName}. {questTotal - questNum} more to light up {chapter.title}!
             </p>
           </>
         )}
@@ -87,9 +97,17 @@ export function RewardScreen() {
           <span className="text-3xl">⭐</span>
           <span className="font-display font-bold text-sun-500 text-xl">+1 sticker</span>
         </div>
+        {nextQuestId ? (
+          <button
+            onClick={() => goTo({ name: 'quest', chapter: scene.chapter, questId: nextQuestId })}
+            className="w-full bg-magic-500 hover:bg-magic-600 text-white text-2xl font-display font-bold py-4 rounded-chunky shadow-soft active:scale-95 transition-transform mb-3"
+          >
+            Next Quest →
+          </button>
+        ) : null}
         <button
           onClick={() => goTo({ name: 'map' })}
-          className="w-full bg-meadow-500 hover:bg-meadow-600 text-white text-2xl font-display font-bold py-4 rounded-chunky shadow-soft active:scale-95 transition-transform"
+          className={`w-full text-2xl font-display font-bold py-4 rounded-chunky shadow-soft active:scale-95 transition-transform ${nextQuestId ? 'bg-white text-meadow-700 border-2 border-meadow-200' : 'bg-meadow-500 hover:bg-meadow-600 text-white'}`}
         >
           Back to the map →
         </button>

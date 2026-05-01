@@ -8,6 +8,7 @@ type Props = {
   problem: ShapePickerProblem
   heroName: string
   onCorrect: () => void
+  onWrong?: () => void
 }
 
 const ShapeSvg = ({ shape, size = 96 }: { shape: string; size?: number }) => {
@@ -66,7 +67,7 @@ const FractionSvg = ({ value, size = 96 }: { value: string; size?: number }) => 
   )
 }
 
-export function ShapePicker({ problem, heroName, onCorrect }: Props) {
+export function ShapePicker({ problem, heroName, onCorrect, onWrong }: Props) {
   const [state, setState] = useState<'idle' | 'right' | 'wrong'>('idle')
   const [pickedIdx, setPickedIdx] = useState<number | null>(null)
 
@@ -80,6 +81,7 @@ export function ShapePicker({ problem, heroName, onCorrect }: Props) {
     } else {
       sounds.wrong()
       setState('wrong')
+      onWrong?.()
       setTimeout(() => {
         setState('idle')
         setPickedIdx(null)

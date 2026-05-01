@@ -8,9 +8,10 @@ type Props = {
   problem: CompareLengthProblem
   heroName: string
   onCorrect: () => void
+  onWrong?: () => void
 }
 
-export function CompareLength({ problem, heroName, onCorrect }: Props) {
+export function CompareLength({ problem, heroName, onCorrect, onWrong }: Props) {
   const [state, setState] = useState<'idle' | 'right' | 'wrong'>('idle')
   const [pickedId, setPickedId] = useState<string | null>(null)
 
@@ -24,6 +25,7 @@ export function CompareLength({ problem, heroName, onCorrect }: Props) {
     } else {
       sounds.wrong()
       setState('wrong')
+      onWrong?.()
       setTimeout(() => {
         setState('idle')
         setPickedId(null)
