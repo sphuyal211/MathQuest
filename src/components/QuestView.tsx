@@ -9,7 +9,7 @@ import { speak, cancelSpeech } from '../hooks/useSpeak'
 type CompanionMood = 'idle' | 'cheer' | 'sad'
 
 export function QuestView() {
-  const { scene, heroName, completeQuest, goTo } = useGame()
+  const { scene, heroName, completeQuest, goTo, recordAnswer } = useGame()
 
   const quests = useMemo(() => {
     if (scene.name !== 'quest') return []
@@ -48,6 +48,7 @@ export function QuestView() {
   }
 
   const onCorrect = () => {
+    recordAnswer(true)
     triggerMood('cheer')
     if (isLast) {
       const chapterComplete = completeQuest(quest.id, scene.chapter)
@@ -57,7 +58,10 @@ export function QuestView() {
     }
   }
 
-  const onWrong = () => triggerMood('sad')
+  const onWrong = () => {
+    recordAnswer(false)
+    triggerMood('sad')
+  }
 
   // Keep ref current so the speak effect always reads the right text
   speakTextRef.current = showStory ? quest.story : (problem?.prompt ?? '')

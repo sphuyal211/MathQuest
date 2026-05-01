@@ -19,6 +19,10 @@ type GameState = {
   completedQuests: string[]
   unlockedCompanions: ChapterId[]
   stickers: number
+  correctAnswers: number
+  wrongAnswers: number
+  giftGoal: number
+  giftSeen: boolean
 
   setHeroName: (name: string) => void
   finishOnboarding: () => void
@@ -27,6 +31,9 @@ type GameState = {
   isChapterUnlocked: (chapter: ChapterId) => boolean
   isChapterComplete: (chapter: ChapterId) => boolean
   nextQuestFor: (chapter: ChapterId) => string | null
+  recordAnswer: (correct: boolean) => void
+  setGiftGoal: (goal: number) => void
+  markGiftSeen: () => void
   resetAll: () => void
 }
 
@@ -43,6 +50,10 @@ export const useGame = create<GameState>()(
       completedQuests: [],
       unlockedCompanions: [],
       stickers: 0,
+      correctAnswers: 0,
+      wrongAnswers: 0,
+      giftGoal: 50,
+      giftSeen: false,
 
       setHeroName: (name) => set({ heroName: name.trim() || DEFAULT_HERO }),
       finishOnboarding: () => set({ hasOnboarded: true, scene: { name: 'map' } }),
@@ -82,15 +93,29 @@ export const useGame = create<GameState>()(
         return !before && after
       },
 
+      recordAnswer: (correct) =>
+        set((s) => ({
+          correctAnswers: correct ? s.correctAnswers + 1 : s.correctAnswers,
+          wrongAnswers: correct ? s.wrongAnswers : s.wrongAnswers + 1,
+        })),
+
+      setGiftGoal: (goal) => set({ giftGoal: goal, giftSeen: false }),
+
+      markGiftSeen: () => set({ giftSeen: true }),
+
       resetAll: () =>
-        set({
+        set((s) => ({
           heroName: DEFAULT_HERO,
           hasOnboarded: false,
           scene: { name: 'welcome' },
           completedQuests: [],
           unlockedCompanions: [],
           stickers: 0,
-        }),
+          correctAnswers: 0,
+          wrongAnswers: 0,
+          giftSeen: false,
+          giftGoal: s.giftGoal,
+        })),
     }),
     {
       name: 'mathquest-progress-v1',

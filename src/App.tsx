@@ -5,14 +5,19 @@ import { QuestView } from './components/QuestView'
 import { RewardScreen } from './components/RewardScreen'
 import { StickerBook } from './components/StickerBook'
 import { Settings } from './components/Settings'
+import { GiftScreen } from './components/GiftScreen'
 
 export default function App() {
   const scene = useGame((s) => s.scene)
   const hasOnboarded = useGame((s) => s.hasOnboarded)
+  const correctAnswers = useGame((s) => s.correctAnswers)
+  const giftGoal = useGame((s) => s.giftGoal)
+  const giftSeen = useGame((s) => s.giftSeen)
 
   if (!hasOnboarded || scene.name === 'welcome') return <WelcomeScreen />
   if (scene.name === 'quest') return <QuestView />
   if (scene.name === 'reward') return <RewardScreen />
+  if (!giftSeen && giftGoal > 0 && correctAnswers >= giftGoal) return <GiftScreen />
   if (scene.name === 'stickers') return <StickerBook />
   if (scene.name === 'settings') return <Settings />
   return <MapView />

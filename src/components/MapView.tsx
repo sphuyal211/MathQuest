@@ -5,7 +5,11 @@ import { useGame } from '../store/game'
 import { sounds } from '../hooks/useSound'
 
 export function MapView() {
-  const { heroName, stickers, completedQuests, goTo, isChapterUnlocked, isChapterComplete, nextQuestFor } = useGame()
+  const {
+    heroName, stickers, completedQuests, goTo,
+    isChapterUnlocked, isChapterComplete, nextQuestFor,
+    correctAnswers, wrongAnswers, giftGoal, giftSeen,
+  } = useGame()
 
   const onTapChapter = (id: typeof CHAPTERS[number]['id']) => {
     if (!isChapterUnlocked(id)) {
@@ -18,6 +22,11 @@ export function MapView() {
     else goTo({ name: 'map' })
   }
 
+  const totalAnswers = correctAnswers + wrongAnswers
+  const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : null
+  const giftReached = giftSeen && correctAnswers >= giftGoal
+  const pct = Math.min(100, (correctAnswers / giftGoal) * 100)
+
   return (
     <div className="min-h-full w-full bg-gradient-to-b from-sky_-200 via-meadow-100 to-meadow-300 relative overflow-hidden no-select">
       <header className="absolute top-0 left-0 right-0 px-6 py-4 flex items-center justify-between z-10">
@@ -26,6 +35,12 @@ export function MapView() {
           <p className="text-xl font-display font-bold text-meadow-900">{heroName}</p>
         </div>
         <div className="flex gap-2">
+          {accuracy !== null && (
+            <div className="bg-white/80 backdrop-blur rounded-chunky px-3 py-2 shadow-soft flex items-center gap-1">
+              <span className="text-lg">🎯</span>
+              <span className="text-lg font-display font-bold text-meadow-800">{accuracy}%</span>
+            </div>
+          )}
           <button
             onClick={() => goTo({ name: 'stickers' })}
             className="bg-white/80 backdrop-blur rounded-chunky px-4 py-2 shadow-soft flex items-center gap-2 active:scale-95"
@@ -42,6 +57,39 @@ export function MapView() {
           </button>
         </div>
       </header>
+
+      {/* Gift progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 z-10">
+        <div className="bg-white/85 backdrop-blur rounded-chunky px-4 py-3 shadow-soft">
+          {giftReached ? (
+            <p className="text-center font-display font-bold text-sun-500">
+              🎁 Gift earned! Ask your parent for a new goal!
+            </p>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-display font-bold text-meadow-800">
+                  🎁 Gift goal
+                </span>
+                <span className="text-sm font-bold text-sun-600">
+                  {correctAnswers} / {giftGoal} correct
+                </span>
+              </div>
+              <div className="w-full bg-meadow-100 rounded-full h-4 overflow-hidden">
+                <motion.div
+                  className="h-4 rounded-full bg-gradient-to-r from-sun-400 to-sun-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${pct}%` }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                />
+              </div>
+              <p className="text-xs text-meadow-600 mt-1 text-center font-display">
+                {giftGoal - correctAnswers} more correct answers to unlock your gift!
+              </p>
+            </>
+          )}
+        </div>
+      </div>
 
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
         {CHAPTERS.slice(0, -1).map((c, i) => {
