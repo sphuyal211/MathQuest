@@ -4,7 +4,7 @@ import { useGame } from '../store/game'
 import { buildQuests } from '../data/quests'
 import { CHAPTERS } from '../data/curriculum'
 import { ActivityDispatcher } from './activities/ActivityDispatcher'
-import { speak, cancelSpeech } from '../hooks/useSpeak'
+import { speak, cancelSpeech, toSpeakable } from '../hooks/useSpeak'
 
 type CompanionMood = 'idle' | 'cheer' | 'sad'
 
@@ -64,7 +64,7 @@ export function QuestView() {
   }
 
   // Keep ref current so the speak effect always reads the right text
-  speakTextRef.current = showStory ? quest.story : (problem?.prompt ?? '')
+  speakTextRef.current = showStory ? quest.story : toSpeakable(problem?.prompt ?? '')
 
   return (
     <div className={`min-h-full w-full bg-gradient-to-b ${chapter.bgClass} flex flex-col no-select relative overflow-hidden`}>

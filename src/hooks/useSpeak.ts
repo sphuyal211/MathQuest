@@ -12,6 +12,15 @@ const pickVoice = (): SpeechSynthesisVoice | null => {
   )
 }
 
+export const toSpeakable = (text: string): string =>
+  text
+    .replace(/−/g, ' minus ')       // Unicode minus sign U+2212
+    .replace(/\+/g, ' plus ')
+    .replace(/= \?/g, 'equals what?')
+    .replace(/=/g, ' equals ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+
 export const speak = (text: string) => {
   if (!('speechSynthesis' in window)) return
   speechSynthesis.cancel()
